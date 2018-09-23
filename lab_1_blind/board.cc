@@ -74,16 +74,6 @@ bool board::operator==(const board& rhs) const {
 	return true;
 }
 
-// board& operator=(const board& rhs) {
-// 	for (uint8_t x{0}; x < 3; x++) {
-// 		for (uint8_t y{0}; y < 3; y++) {
-// 			cells[x][y] = rhs.cells[x][y];
-// 		}
-// 	}
-// 	empty_cell = rhs.empty_cell;
-// 	return *this;
-// }
-
 void board::print_board() const {
 	for (uint8_t x{0}; x < 3; x++) {
 		for (uint8_t y{0}; y < 3; y++) {

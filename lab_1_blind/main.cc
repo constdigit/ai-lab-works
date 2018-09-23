@@ -16,6 +16,6 @@ int main(int argc, char* argv[]) {
 		{7, 8, 0}};
 	board goal_board(goal);
 
-	breadth_first_search(begin, goal);
+	depth_first_search(begin, goal);
 	return 0;
 }
