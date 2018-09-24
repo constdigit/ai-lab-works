@@ -8,8 +8,8 @@
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
-void step(const board& current, const std::vector<board>& fringe,
-		const std::vector<board>& successors, const std::vector<size_t>& duplicates) {
+void step(const board& current, const std::vector<board>& nodes, size_t fringe_size,
+	const std::vector<board>& successors, const std::vector<size_t>& duplicates) {
 	static bool runall{false};
 	static size_t step_counter{0};
 	static size_t skip_step{0};
@@ -30,7 +30,7 @@ void step(const board& current, const std::vector<board>& fringe,
 	current.print_board();
 
 	std::cout << "Fringe:\n";
-	std::for_each(fringe.cbegin(), fringe.cend(), [](const board& node) {
+	std::for_each(nodes.cbegin(), nodes.cbegin() + fringe_size, [](const board& node) {
 		node.print_board();
 		std::cout << '\n';
 	});
@@ -38,8 +38,7 @@ void step(const board& current, const std::vector<board>& fringe,
 	size_t duplicate_index{0};
 	size_t it{0};
 	std::cout << "Successors:\n";
-	std::for_each(successors.cbegin(), successors.cend(),
-	[&duplicates, &duplicate_index, &it](const board& node) {
+	std::for_each(successors.cbegin(), successors.cend(), [&](const board& node) {
 		if (!duplicates.empty() && it == duplicates[duplicate_index]) {
 			duplicate_index++;
 			std::cout << ANSI_COLOR_RED;
@@ -51,6 +50,7 @@ void step(const board& current, const std::vector<board>& fringe,
 		}
 		it++;
 	});
+	std::cout.flush();
 
 	char key;
 	std::cin >> key;
@@ -102,14 +102,13 @@ void depth_first_search(const board& begin, const board& goal) {
 		board current = nodes.back();
 		std::vector<board> successors = current.get_successors();
 		nodes.pop_back();
-		// keep fringe
-		std::vector<board> fringe(nodes.begin(), nodes.end());
+
+		auto fringe_size = nodes.size();
 		// keep indexes of successors duplicates
 		size_t duplicate_index{0};
 		std::vector<size_t> duplicates;
 		// check each successor for uniqueness and for reaching final state
-		std::for_each(successors.begin(), successors.end(),
-			[&nodes, &goal, &achieved, &duplicates, &duplicate_index](const board& node) {
+		std::for_each(successors.begin(), successors.end(), [&](const board& node) {
 				if (node == goal) {
 					achieved = true;
 				} else if (node.is_unique()) {
@@ -119,7 +118,7 @@ void depth_first_search(const board& begin, const board& goal) {
 				}
 				duplicate_index++;
 		});
-		step(current, fringe, successors, duplicates);
+		step(current, nodes, fringe_size, successors, duplicates);
 	}
 	std::cout << "found" << '\n';
 	goal.print_board();
