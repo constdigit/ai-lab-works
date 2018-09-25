@@ -13,10 +13,12 @@ struct board {
 	struct cell {
 		uint8_t x, y;
 	} empty_cell;
+	size_t depth;
 
 	// constructor
-	board(const uint8_t initial_state[3][3]);
-
+	board(const uint8_t initial_state[3][3], size_t initial_depth);
+	// board(const board& rhs) = default;
+	// board& operator=(const board& rhs) = default;
 	// makes board in new state by moving empty cell on dx or dy
 	board move(int8_t dx, int8_t dy) const;
 

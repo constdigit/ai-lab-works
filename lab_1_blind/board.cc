@@ -5,7 +5,8 @@
 std::unordered_map<uint64_t, board> board::unique_nodes{};
 
 // constructor
-board::board(const uint8_t initial_state[3][3]) {
+board::board(const uint8_t initial_state[3][3], size_t initial_depth) {
+	depth = initial_depth;
 	for (uint8_t x{0}; x < 3; x++) {
 		for (uint8_t y{0}; y < 3; y++) {
 			cells[x][y] = initial_state[x][y];
@@ -19,7 +20,7 @@ board::board(const uint8_t initial_state[3][3]) {
 
 // makes board in new state by moving empty cell on dx or dy
 board board::move(int8_t dx, int8_t dy) const{
-	board new_board(cells);
+	board new_board(cells, depth + 1);
 	auto ex = empty_cell.x;
 	auto ey = empty_cell.y;
 	std::swap(new_board.cells[ex][ey],

@@ -8,16 +8,20 @@
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
+// provides step-by-step running
 void step(const board& current, const std::vector<board>& nodes, size_t fringe_size,
-	const std::vector<board>& successors, const std::vector<size_t>& duplicates) {
+	const std::vector<board>& successors, const std::vector<size_t>& duplicates,
+	bool force = false) {
 	static bool runall{false};
 	static size_t step_counter{0};
 	static size_t skip_step{0};
 
-	if (runall) {
+	// don't print anything else
+	if (runall && !force) {
 		return;
 	}
-	if (skip_step > 0) {
+	// skip steps
+	if (skip_step > 0 && !force) {
 		skip_step--;
 		step_counter++;
 		return;
@@ -30,11 +34,13 @@ void step(const board& current, const std::vector<board>& nodes, size_t fringe_s
 	current.print_board();
 
 	std::cout << "Fringe:\n";
-	std::for_each(nodes.cbegin(), nodes.cbegin() + fringe_size, [](const board& node) {
+	auto end = nodes.cbegin() + fringe_size;
+	std::for_each(nodes.cbegin(), end, [](const board& node) {
 		node.print_board();
 		std::cout << '\n';
 	});
 
+	// print all successors and mark duplicates red
 	size_t duplicate_index{0};
 	size_t it{0};
 	std::cout << "Successors:\n";
@@ -52,9 +58,11 @@ void step(const board& current, const std::vector<board>& nodes, size_t fringe_s
 	});
 	std::cout.flush();
 
+	// any key + enter for next step
 	char key;
 	std::cin >> key;
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	// two options for 'r' key
 	if (key == 'r') {
 		std::string arg;
 		std::cin >> arg;
@@ -68,40 +76,19 @@ void step(const board& current, const std::vector<board>& nodes, size_t fringe_s
 
 void breadth_first_search(const board& begin, const board& goal) {
 	// storage for new nodes
-	std::queue<board> nodes;
-	nodes.push(begin);
-
-	bool achieved{false};
-	// while goal not found
-	while (!achieved) {
-		board current = nodes.front();
-		std::vector<board> successors = current.get_successors();
-		nodes.pop();
-		// check each successor for uniqueness and for reaching final state
-		std::for_each(successors.begin(), successors.end(),
-			[&nodes, &goal, &achieved](const board& node) {
-				if (node == goal) {
-					achieved = true;
-				} else if (node.is_unique()) {
-					nodes.push(node);
-				}
-		});
-	}
-	std::cout << "found" << '\n';
-	goal.print_board();
-}
-
-void depth_first_search(const board& begin, const board& goal) {
-	// storage for new nodes
 	std::vector<board> nodes;
 	nodes.push_back(begin);
 
 	bool achieved{false};
 	// while goal not found
 	while (!achieved) {
-		board current = nodes.back();
+		if (nodes.empty()) {
+			break;
+		}
+		board current = nodes.front();
 		std::vector<board> successors = current.get_successors();
-		nodes.pop_back();
+		//equal to pop_front
+		nodes.erase(nodes.begin());
 
 		auto fringe_size = nodes.size();
 		// keep indexes of successors duplicates
@@ -111,15 +98,67 @@ void depth_first_search(const board& begin, const board& goal) {
 		std::for_each(successors.begin(), successors.end(), [&](const board& node) {
 				if (node == goal) {
 					achieved = true;
-				} else if (node.is_unique()) {
+				}
+				if (node.is_unique()) {
 					nodes.push_back(node);
 				} else {
 					duplicates.push_back(duplicate_index);
 				}
 				duplicate_index++;
 		});
-		step(current, nodes, fringe_size, successors, duplicates);
+		step(current, nodes, fringe_size, successors, duplicates, achieved);
 	}
-	std::cout << "found" << '\n';
+
+	std::cout << "\n Goal found:" << '\n';
 	goal.print_board();
+}
+
+void depth_first_search(const board& begin, const board& goal, size_t max_depth) {
+	// storage for new nodes
+	std::vector<board> nodes;
+	nodes.push_back(begin);
+
+	bool achieved{false};
+	// while goal not found
+	while (!achieved) {
+		if (nodes.empty()) {
+			break;
+		}
+		board current = nodes.back();
+		nodes.pop_back();
+
+		if (current.depth == max_depth) {
+			if (current == goal) {
+				achieved = true;
+				break;
+			}
+			continue;
+		}
+		std::vector<board> successors = current.get_successors();
+
+		auto fringe_size = nodes.size();
+		// keep indexes of successors duplicates
+		size_t duplicate_index{0};
+		std::vector<size_t> duplicates;
+		// check each successor for uniqueness and for reaching final state
+		std::for_each(successors.begin(), successors.end(), [&](const board& node) {
+				if (node == goal) {
+					achieved = true;
+				}
+				if (node.is_unique()) {
+					nodes.push_back(node);
+				} else {
+					duplicates.push_back(duplicate_index);
+				}
+				duplicate_index++;
+		});
+		step(current, nodes, fringe_size, successors, duplicates, achieved);
+	}
+	if (achieved) {
+		std::cout << "\n Goal found:" << '\n';
+		goal.print_board();
+	} else {
+		std::cout << ANSI_COLOR_RED << "\n Goal not found:"
+							<< ANSI_COLOR_RESET << std::endl;
+	}
 }
