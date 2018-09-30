@@ -9,7 +9,7 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 // provides step-by-step running
-void step(const board& current, const std::vector<board>& nodes, size_t fringe_size,
+void step(const board& current, const std::deque<board>& nodes, size_t fringe_size,
 	const std::vector<board>& successors, const std::vector<size_t>& duplicates,
 	bool force = false) {
 	static bool runall{false};
@@ -18,6 +18,7 @@ void step(const board& current, const std::vector<board>& nodes, size_t fringe_s
 
 	// don't print anything else
 	if (runall && !force) {
+		step_counter++;
 		return;
 	}
 	// skip steps
@@ -69,17 +70,22 @@ void step(const board& current, const std::vector<board>& nodes, size_t fringe_s
 		if (arg == "all") {
 			runall = true;
 		} else {
-			skip_step = std::stoul(arg);
+			try {
+				skip_step = std::stoul(arg);
+			} catch(std::invalid_argument ex) {
+				std::cerr << ex.what() << '\n';
+			}
 		}
 	}
 }
 
 void breadth_first_search(const board& begin, const board& goal) {
 	// storage for new nodes
-	std::vector<board> nodes;
+	std::deque<board> nodes;
 	nodes.push_back(begin);
 
 	bool achieved{false};
+	size_t depth{0};
 	// while goal not found
 	while (!achieved) {
 		if (nodes.empty()) {
@@ -88,7 +94,7 @@ void breadth_first_search(const board& begin, const board& goal) {
 		board current = nodes.front();
 		std::vector<board> successors = current.get_successors();
 		//equal to pop_front
-		nodes.erase(nodes.begin());
+		nodes.pop_front();
 
 		auto fringe_size = nodes.size();
 		// keep indexes of successors duplicates
@@ -98,6 +104,7 @@ void breadth_first_search(const board& begin, const board& goal) {
 		std::for_each(successors.begin(), successors.end(), [&](const board& node) {
 				if (node == goal) {
 					achieved = true;
+					depth = node.depth;
 				}
 				if (node.is_unique()) {
 					nodes.push_back(node);
@@ -109,16 +116,22 @@ void breadth_first_search(const board& begin, const board& goal) {
 		step(current, nodes, fringe_size, successors, duplicates, achieved);
 	}
 
-	std::cout << "\n Goal found:" << '\n';
-	goal.print_board();
+	if (achieved) {
+		std::cout << "\n Goal found on depth " << depth << ":\n";
+		goal.print_board();
+	} else {
+		std::cout << ANSI_COLOR_RED << "\n Goal not found:"
+							<< ANSI_COLOR_RESET << std::endl;
+	}
 }
 
 void depth_first_search(const board& begin, const board& goal, size_t max_depth) {
 	// storage for new nodes
-	std::vector<board> nodes;
+	std::deque<board> nodes;
 	nodes.push_back(begin);
 
 	bool achieved{false};
+	size_t depth{0};
 	// while goal not found
 	while (!achieved) {
 		if (nodes.empty()) {
@@ -130,6 +143,7 @@ void depth_first_search(const board& begin, const board& goal, size_t max_depth)
 		if (current.depth == max_depth) {
 			if (current == goal) {
 				achieved = true;
+				depth = max_depth;
 				break;
 			}
 			continue;
@@ -144,6 +158,7 @@ void depth_first_search(const board& begin, const board& goal, size_t max_depth)
 		std::for_each(successors.begin(), successors.end(), [&](const board& node) {
 				if (node == goal) {
 					achieved = true;
+					depth = node.depth;
 				}
 				if (node.is_unique()) {
 					nodes.push_back(node);
@@ -155,7 +170,7 @@ void depth_first_search(const board& begin, const board& goal, size_t max_depth)
 		step(current, nodes, fringe_size, successors, duplicates, achieved);
 	}
 	if (achieved) {
-		std::cout << "\n Goal found:" << '\n';
+		std::cout << "\n Goal found on depth " << depth << ":\n";
 		goal.print_board();
 	} else {
 		std::cout << ANSI_COLOR_RED << "\n Goal not found:"
