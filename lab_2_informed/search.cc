@@ -93,7 +93,14 @@ uint16_t wrong_placed(const board& node) {
 }
 
 uint16_t manhattan_distance(const board& node) {
-	return 0;
+	uint8_t value{0};
+	for (uint8_t x{0}; x < 3; x++) {
+		for (uint8_t y{0}; y < 3; y++) {
+			auto dst = board::goal.find(node.cells[x][y]);
+			value += std::abs(x - dst.x) + std::abs(y - dst.y);
+		}
+	}
+	return value;
 }
 
 void a_star_search(const board& begin) {

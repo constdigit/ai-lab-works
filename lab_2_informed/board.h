@@ -52,4 +52,7 @@ struct board {
 
 	// prints cells matrix in stdout
 	void print_board() const;
+
+	// returns position of specified chip
+	cell find(uint8_t chip);
 };

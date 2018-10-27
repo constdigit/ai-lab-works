@@ -35,9 +35,9 @@ int main(int argc, char* argv[]) {
 		{{1, 2, 3},
 		{4, 5, 6},
 		{7, 8, 0}};
-	board goal_board(goal_state, 0);
-	board::goal = goal_board;
-	board::goal.h = 0;
+	for (uint8_t i{0}; i < 3; i++) {
+		memcpy(board::goal.cells[i], goal_state[i], 3);
+	}
 
 	uint8_t begin_state[3][3] =
 		{{5, 8, 3},

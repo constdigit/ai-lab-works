@@ -96,3 +96,16 @@ void board::print_board() const {
 	}
 	std::cout << "heuristic function value: " << h << '\n';
 }
+
+// returns position of specified chip
+board::cell board::find(uint8_t chip) {
+	for (uint8_t x{0}; x < 3; x++) {
+		for (uint8_t y{0}; y < 3; y++) {
+			if (cells[x][y] == chip) {
+				board::cell position{x, y};
+				return position;
+			}
+		}
+	}
+	throw std::runtime_error("invalid chip value");
+}
