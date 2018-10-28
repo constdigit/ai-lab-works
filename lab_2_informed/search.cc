@@ -126,7 +126,7 @@ void a_star_search(const board& begin) {
 		// check each successor for uniqueness and for reaching final state
 		std::for_each(successors.begin(), successors.end(),
 			[&](const board node) {
-				if (node == board::goal) {
+				if (node.is_goal()) {
 					achieved = true;
 					depth = node.depth;
 				}
