@@ -7,28 +7,15 @@
 constexpr uint8_t WRONG_PLACED = 1;
 constexpr uint8_t MANHATTAN_DISTANCE = 2;
 
-
-
 int main(int argc, char* argv[]) {
 	// obtaion heuristic function
 	uint8_t function_type{0};
 	if (strcmp(argv[1], "1") == 0) {
-		function_type = WRONG_PLACED;
+		board::heuristic_function = wrong_placed;
 	} else if (std::strcmp(argv[1], "2") == 0) {
-		function_type = MANHATTAN_DISTANCE;
-	}
-
-	// initialize heuristic function in board class
-	switch (function_type) {
-		case WRONG_PLACED :
-			board::heuristic_function = wrong_placed;
-			break;
-		case MANHATTAN_DISTANCE :
-			board::heuristic_function = manhattan_distance;
-			break;
-		default:
-			std::cerr << "invalid args" << std::endl;
-			return 0;
+		board::heuristic_function = manhattan_distance;
+	} else {
+		return 0;
 	}
 
 	uint8_t goal_state[3][3] =

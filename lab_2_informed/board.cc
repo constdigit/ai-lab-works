@@ -66,7 +66,7 @@ std::vector<board> board::get_successors() const {
 
 	std::sort(successors.begin(), successors.end(),
 		[](const board& left, const board& right){
-			return left.h < right.h;
+			return left.h > right.h;
 		});
 	return successors;
 }

@@ -58,6 +58,7 @@ void step(const board& current, const std::deque<board>& nodes, size_t fringe_si
 		}
 		it++;
 	});
+	std::cout << "\n <<< step #" << step_counter << " >>> \n";
 	std::cout.flush();
 
 	// any key + enter for next step
