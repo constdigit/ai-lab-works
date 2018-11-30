@@ -31,7 +31,45 @@
   )
 )
 
+; trying to find problem source
+(defrule inspect-problem
+	(inspect-prob)
+=>
+	(printout t "Вы недавно собирали ПК или проводил аппаратное обновление?" crlf)
+	(bind ?assembled (read))
+	(if  (or (eq ?assembled y) (eq ?assembled да))
+		then
+		(printout t "Возможно, проблема вызвана процессором или материнской платой
+		(см. 1. и 3.)" crlf)
+		(assert (initial-fact))
+	)
 
+	(printout t "Обслуживание ПК проводилось более года назад?" crlf)
+	(bind ?upgrade (read))
+	(if  (or (eq ?upgrade y) (eq ?upgrade да))
+		then
+		(printout t "Возможно, вам помогут советы из пунктов 1. и 3." crlf)
+		(assert (initial-fact))
+	)
+
+	(printout t "Загрузка проходит нормально, но при длительной работе скорость работы
+	ухудшается?" crlf)
+	(bind ?upgrade (read))
+	(if  (or (eq ?upgrade y) (eq ?upgrade да))
+		then
+		(printout t "Симптомы неполадок процессора и памяти (см. 1. и 2.)" crlf)
+		(assert (initial-fact))
+	)
+
+	(printout t "Проблемы при загрузке ПК, медленные запуск некоторых программ и
+	открытие файлов?" crlf)
+	(bind ?upgrade (read))
+	(if  (or (eq ?upgrade y) (eq ?upgrade да))
+		then
+		(printout t "Стоит проверить жесткий диск" crlf)
+		(assert (initial-fact))
+	)
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; cpu problems section ;;;
@@ -41,11 +79,6 @@
 (defrule cpu-problems
 	(cpu-prob 1)
 =>
-	; (printout t "Вы недавно собирали ПК или проводил аппаратное обновление?" crlf)
-	; (bind ?upgrade (read))
-	; (if  (or (eq ?upgrade y) (eq ?upgrade да))
-	; 	then (assert (pc-upgrade 1))
-	; )
 
 	(printout t "Перегривается ли процессор?" crlf)
 	(bind ?oheat (read))
@@ -57,8 +90,8 @@
 	(printout t "Настройки BIOS корректны?" crlf)
 	(bind ?bios (read))
 	(if  (or (eq ?bios y) (eq ?bios да))
-		then (assert (cpu-bios 1))
-		else (assert (cpu-bios 0))
+		then (assert (cpu-bios 0))
+		else (assert (cpu-bios 1))
 	)
 
 	(printout t "Поддерживается ли процессор данной материнской платой?" crlf)
