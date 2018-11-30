@@ -222,68 +222,143 @@
 
 ; clarifying the motherboard problem
 (defrule motherboard-problems
-	(ram-prob 1)
+	(mb-prob 1)
 =>
+	(printout t "Проблема с подключением новых PCI устройств и планок ОЗУ?" crlf)
+	(bind ?pci (read))
+	(if  (or (eq ?pci y) (eq ?pci да))
+		then (assert (mb-pci 1))
+		else (assert (mb-pci 0))
+	)
 
-; CLIPS> (clear)
-; CLIPS> (reset)
-; CLIPS> (assert (red 100) (green 125) (blue 200))
-; <Fact-3>
-; CLIPS> (reset)
-; CLIPS> (deffacts rgb "color" (red 100) (green 125) (blue 200))
-; CLIPS> (defrule data-input
-;   (initial-fact)
-; =>
-;   (printout t crlf "start" crlf)
-;   (assert (red 100) (green 125) (blue 200)))
-; ==> Activation 0      data-input: f-0
-; CLIPS> (defrule Y
-;     (red ?r)
-;     (green ?g)
-;     (test (and (> ?r 0) (> ?g 0)))
-; =>
-;     (printout t crlf crlf "get yellow" crlf)
-;     (assert (yellow 255)))
-; CLIPS> (defrule C
-;     (blue ?b)
-;     (green ?g)
-;     (test (and (> ?b 0) (> ?g 0)))
-; =>
-;     (printout t crlf crlf "get cyan" crlf)
-;     (assert (cyan 255)))
-; CLIPS> (defrule W
-;     (yellow ?y)
-;     (cyan ?c)
-;     (test (and (> ?y 0) (> ?c 0)))
-; =>
-;     (printout t crlf crlf "get white" crlf)
-;     (assert (white 255)))
-; CLIPS> (watch facts)
-; CLIPS> (watch activations)
-; CLIPS> (watch rules)
-; CLIPS> (reset)
-; CLIPS> (run)
-; FIRE    1 data-input: f-0
-;
-; start
-; ==> f-1     (red 100)
-; ==> f-2     (green 125)
-; ==> Activation 0      Y: f-1,f-2
-; ==> f-3     (blue 200)
-; ==> Activation 0      C: f-3,f-2
-; FIRE    2 C: f-3,f-2
-;
-;
-; get cyan
-; ==> f-4     (cyan 255)
-; FIRE    3 Y: f-1,f-2
-;
-;
-; get yellow
-; ==> f-5     (yellow 255)
-; ==> Activation 0      W: f-5,f-4
-; FIRE    4 W: f-5,f-4
-;
-;
-; get white
-; ==> f-6     (white 255)
+	(printout t "На плате имеются вздувшиеся конденсаторы?" crlf)
+	(bind ?cap (read))
+	(if  (or (eq ?cap y) (eq ?cap да))
+		then (assert (mb-cap 1))
+		else (assert (mb-cap 0))
+	)
+
+	(printout t "Проблемы с подключением периферийных устройств?" crlf)
+	(bind ?per (read))
+	(if  (or (eq ?per y) (eq ?per да))
+		then (assert (mb-per 1))
+		else (assert (mb-per 0))
+	)
+
+	(printout t "Проблемы с подключением HDD?" crlf)
+	(bind ?sata (read))
+	(if  (or (eq ?sata y) (eq ?sata да))
+		then (assert (mb-sata 1))
+		else (assert (mb-sata 0))
+	)
+)
+
+; problem with pci
+(defrule motherboard-pci
+	(mb-pci 1)
+
+=>
+)
+
+; bad capacitors on motherboard
+(defrule motherboard-capacitors
+	(mb-cap 1)
+
+=>
+)
+
+; problem with connecting peripheral devices
+(defrule motherboard-periphery
+	(mb-per 1)
+
+=>
+)
+
+; problem with connecting hdd
+(defrule motherboard-sata
+	(mb-sata 1)
+
+=>
+)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; hdd problems section ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; clarifying the hdd problem
+(defrule hdd-problems
+	(hdd-prob 1)
+=>
+	(printout t "HDD не раскручивает шпиндель, не издавает каких-либо признаков
+	работоспособности?" crlf)
+	(bind ?pow (read))
+	(if  (or (eq ?pow y) (eq ?pow да))
+		then (assert (hdd-pow 1))
+		else (assert (hdd-pow 0))
+	)
+
+	(printout t "Доступ к некоторым файлам значительно замедлился?" crlf)
+	(bind ?blocks (read))
+	(if  (or (eq ?blocks y) (eq ?blocks да))
+		then (assert (hdd-blocks 1))
+		else (assert (hdd-blocks 0))
+	)
+
+	(printout t "Жесткий диск был приобретен недавно?" crlf)
+	(bind ?def (read))
+	(if  (or (eq ?def y) (eq ?def да))
+		then (assert (hdd-def 1))
+		else (assert (hdd-def 0))
+	)
+
+	(printout t "Происходило ли недавно некорректное отключение ПК?" crlf)
+	(bind ?sysfiles (read))
+	(if  (or (eq ?sysfiles y) (eq ?sysfiles да))
+		then (assert (hdd-sysfiles 1))
+		else (assert (hdd-sysfiles 0))
+	)
+
+	(printout t "Жесткий диск перегревается?" crlf)
+	(bind ?oheat (read))
+	(if  (or (eq ?oheat y) (eq ?oheat да))
+		then (assert (hdd-oheat 1))
+		else (assert (hdd-oheat 0))
+	)
+)
+
+; dead power controller
+(defrule hdd-power
+	(hdd-pow 1)
+
+=>
+)
+
+; bad blocks
+(defrule hdd-badblocks
+	(hdd-blocks 1)
+
+=>
+)
+
+; warranty case
+(defrule hdd-defect
+	(hdd-def 1)
+
+=>
+)
+
+; damaged system files
+(defrule hdd-badsysfiles
+	(hdd-sysfiles 1)
+
+=>
+)
+
+; hdd overheating
+(defrule hdd-overheating
+	(hdd-oheat 1)
+
+=>
+)
