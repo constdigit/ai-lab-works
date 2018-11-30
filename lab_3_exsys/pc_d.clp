@@ -1,5 +1,5 @@
 ;defrule for initializing
-(defrule init
+(defrule initialize
 	(initial-fact)
 =>
   (printout t "Выберите проблему: " crlf)
@@ -33,23 +33,49 @@
 
 ; trying to find problem source
 (defrule inspect-problem
-	(inspect-prob)
+	(inspect-prob 1)
 =>
 	(printout t "Вы недавно собирали ПК или проводил аппаратное обновление?" crlf)
 	(bind ?assembled (read))
 	(if  (or (eq ?assembled y) (eq ?assembled да))
 		then
-		(printout t "Возможно, проблема вызвана процессором или материнской платой
-		(см. 1. и 3.)" crlf)
-		(assert (initial-fact))
+		(printout t "Возможно, проблема вызвана процессором или материнской платой:"
+		crlf)
+		(printout t "  1. Процессор" crlf)
+		(printout t "  2. Материнская плата" crlf)
+		(bind ?problem (read))
+
+		(if (eq ?problem 1)
+			then (assert(cpu-prob 1))
+		)
+		(if (eq ?problem 2)
+			then (assert(mb-prob 1))
+		)
+
+		(if (and :(integerp ?problem) (< ?problem 1) (> ?problem 2))
+			then (printout t "Введите целое число от 1 до 2" crlf)
+		)
 	)
 
 	(printout t "Обслуживание ПК проводилось более года назад?" crlf)
 	(bind ?upgrade (read))
 	(if  (or (eq ?upgrade y) (eq ?upgrade да))
 		then
-		(printout t "Возможно, вам помогут советы из пунктов 1. и 3." crlf)
-		(assert (initial-fact))
+		(printout t "Возможно, вам помогут советы из пунктов:" crlf)
+		(printout t "  1. Процессор" crlf)
+		(printout t "  2. Материнская плата" crlf)
+		(bind ?problem (read))
+
+		(if (eq ?problem 1)
+			then (assert(cpu-prob 1))
+		)
+		(if (eq ?problem 2)
+			then (assert(mb-prob 1))
+		)
+
+		(if (and :(integerp ?problem) (< ?problem 1) (> ?problem 2))
+			then (printout t "Введите целое число от 1 до 2" crlf)
+		)
 	)
 
 	(printout t "Загрузка проходит нормально, но при длительной работе скорость работы
@@ -57,8 +83,21 @@
 	(bind ?upgrade (read))
 	(if  (or (eq ?upgrade y) (eq ?upgrade да))
 		then
-		(printout t "Симптомы неполадок процессора и памяти (см. 1. и 2.)" crlf)
-		(assert (initial-fact))
+		(printout t "Симптомы неполадок процессора и памяти:" crlf)
+		(printout t "  1. Процессор" crlf)
+		(printout t "  2. ОЗУ" crlf)
+		(bind ?problem (read))
+
+		(if (eq ?problem 1)
+			then (assert(cpu-prob 1))
+		)
+		(if (eq ?problem 2)
+			then (assert(ram-prob 1))
+		)
+
+		(if (and :(integerp ?problem) (< ?problem 1) (> ?problem 2))
+			then (printout t "Введите целое число от 1 до 2" crlf)
+		)
 	)
 
 	(printout t "Проблемы при загрузке ПК, медленные запуск некоторых программ и
@@ -67,7 +106,7 @@
 	(if  (or (eq ?upgrade y) (eq ?upgrade да))
 		then
 		(printout t "Стоит проверить жесткий диск" crlf)
-		(assert (initial-fact))
+		(assert (hdd-prob 1))
 	)
 )
 
