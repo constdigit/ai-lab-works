@@ -1,4 +1,4 @@
-;defrule to initialize the k-base
+;defrule for initializing
 (defrule init
 	(initial-fact)
 =>
@@ -31,6 +31,13 @@
   )
 )
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; cpu problems section ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; clarifying the cpu problem
 (defrule cpu-problems
 	(cpu-prob 1)
 =>
@@ -68,7 +75,8 @@
 		else (assert (cpu-crash 0))
 	)
 
-	(printout t "Процессор работает медленнее (при этом возможно появление системных уведомлений о некорректной работе процессора)?" crlf)
+	(printout t "Процессор работает медленнее (при этом возможно появление системных
+		уведомлений о некорректной работе процессора)?" crlf)
 	(bind ?speed (read))
 	(if  (or (eq ?speed y) (eq ?speed да))
 		then (assert (cpu-slow 1))
@@ -76,42 +84,146 @@
 	)
 )
 
+; advice for cpu overheating
 (defrule cpu-overheating
 	(cpu-oheat 1)
 =>
-(printout t "-------------------------------------------------------------------------------------------------------------------------" crlf)
+(printout t
+	 "-------------------------------------------------------------------------------
+	 ------------------------------------------" crlf)
 	(printout t "Измерьте температуру процессора: " crlf)
-	(printout t "  1. Запустите ресурсоемкое приложение на некоторое время (бенчмарк)" crlf)
-	(printout t "  2. Запустите специальную утилиту для диагностики процессора (cpu-z, aida) или перезагрузите ПК, чтобы посмотреть темпеартуру в BIOS" crlf)
-	(printout t "Если температура процессора больше 80 градусов, то это серьезная проблема:" crlf)
-	(printout t "  - Проверьте установку процессора: он должен быть закреплен в сокете, сверху плотно прижат кулером." crlf)
+	(printout t "  1. Запустите ресурсоемкое приложение на некоторое время
+	(бенчмарк)" crlf)
+	(printout t "  2. Запустите специальную утилиту для диагностики процессора
+	(cpu-z, aida) или перезагрузите ПК, чтобы посмотреть темпеартуру в BIOS" crlf)
+	(printout t "Если температура процессора больше 80 градусов, то это серьезная
+	проблема:" crlf)
+	(printout t "  - Проверьте установку процессора: он должен быть закреплен в
+	сокете, сверху плотно прижат кулером." crlf)
 	(printout t "  - Проверите, что процессор получает необходимы вольтаж." crlf)
-	(printout t "  - Удостоверьтесь, что кулер подходит для данного процессора (по рассеиваемой мощности)." crlf)
-	(printout t "  - Если кулер сильно загрязнен пылью, необходимо его очистить." crlf)
-	(printout t "  - Попробуйте нанести свежую термопасту между процессором и кулером." crlf)
+	(printout t "  - Удостоверьтесь, что кулер подходит для данного процессора (по
+		рассеиваемой мощности)." crlf)
+	(printout t "  - Если кулер сильно загрязнен пылью, необходимо его очистить."
+	 crlf)
+	(printout t "  - Попробуйте нанести свежую термопасту между процессором и
+	кулером." crlf)
 )
 
+; incorrect bios settings
 (defrule cpu-incorrect-bios
 	(cpu-bios 1)
 =>
-	(printout t "-------------------------------------------------------------------------------------------------------------------------" crlf)
-	(printout t "Если вы проверили настройки BIOS и они некорректны, попробуйте выполнить установку настроек по-умолчанию." crlf)
+	(printout t
+		 "--------------------------------------------------------------------------
+		 -----------------------------------------------" crlf)
+	(printout t "Если вы проверили настройки BIOS и они некорректны, попробуйте
+	выполнить установку настроек по-умолчанию." crlf)
 )
 
+; problem with motherboard support
 (defrule cpu-mboard-support
 	(cpu-notsupport 1)
 =>
-	(printout t "-------------------------------------------------------------------------------------------------------------------------" crlf)
+	(printout t
+		 "-----------------------------------------------------------------------------
+	--------------------------------------------" crlf)
 	(printout t "Если процессор несовместим с материнской платой:" crlf)
 	(printout t "  - Возможно, необходимо обновление BIOS." crlf)
 	(printout t "  - Свяжитесь с тех. поддержкой производителя." crlf)
 )
 
+; unexpected system crashing and rebooting
 (defrule cpu-crashing
 	(cpu-crash 1)
 =>
 
 )
+
+; cpu is slowing down
+(defrule cpu-speed
+	(cpu-slow 1)
+=>
+
+)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ram problems section ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; clarifying the ram problem
+(defrule ram-problems
+	(ram-prob 1)
+=>
+	(printout t "Вы недавно добавляли дополнительную память?" crlf)
+	(bind ?upgrade (read))
+	(if  (or (eq ?upgrade y) (eq ?upgrade да))
+		then (assert (ram-upg 1))
+		else (assert (ram-upg 0))
+	)
+
+	(printout t "Вы изменяли настройки BIOS, касающиеся ОЗУ?" crlf)
+	(bind ?bios (read))
+	(if  (or (eq ?bios y) (eq ?bios да))
+		then (assert (ram-bios 1))
+		else (assert (ram-bios 0))
+	)
+
+	(printout t "Вы недавно обновляли оперционную систему?" crlf)
+	(bind ?osupd (read))
+	(if  (or (eq ?osupd y) (eq ?osupd да))
+		then (assert (ram-osupd 1))
+		else (assert (ram-osupd 0))
+	)
+
+	(printout t "Вы меняли другие компоненты системного блока (процессор,
+		 материнская плата)?" crlf)
+	(bind ?other (read))
+	(if  (or (eq ?other y) (eq ?other да))
+		then (assert (ram-other 1))
+		else (assert (ram-other 0))
+	)
+)
+
+; ram upgrade caused this problem
+(defrule ram-upgrade
+	(ram-upg 1)
+=>
+
+)
+
+; incorrect bios settings (frequency, clocks)
+(defrule ram-biossettings
+	(ram-bios 1)
+=>
+
+)
+
+; problems after os update
+(defrule ram-osupdate
+	(ram-osupd 1)
+=>
+
+)
+
+; replacment of other parts of pc
+(defrule ram-other
+	(ram- 1)
+=>
+
+)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; motherboard problems section ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; clarifying the motherboard problem
+(defrule motherboard-problems
+	(ram-prob 1)
+=>
 
 ; CLIPS> (clear)
 ; CLIPS> (reset)
